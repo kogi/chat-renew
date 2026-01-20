@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<title>E2E-chat</title>
+		<link rel="stylesheet" href="client.css" />
+	</head>
+	<body>
+		<div id="loading" class="loading">
+			<img src="/images/logo.png" alt="loading" class="loading-image" />
+		</div>
+
+		<div id="pairing" class="pairing" style="display: none">
+			<p class="cid">ID:　<span id="cid"></span></p>
+			<div id="client" class="client">
+				<label for="rec-input" class="id-label">ClientList ID　:　</label>
+				<input type="text" id="rec-input" class="id-Input" disabled />
+			</div>
+			<div>
+				<button class="connect-button" role="button" id="connect" onclick="connect()" disabled>connect</button>
+			</div>
+			<p id="msg-box">connecting...</p>
+		</div>
+
+		<div id="chat" class="chat" style="display: none">
+			<div class="status-box">
+				<div id="target-status" class="user-status-box status-online">
+					<p id="target-status-id">----</p>
+				</div>
+				<div id="user-status" class="user-status-box status-online">
+					<p id="user-status-id">You</p>
+				</div>
+			</div>
+			<div class="message-box" id="message-box">
+				
+			</div>
+		</div>
+
+		<div id="message-input" class="message-input" style="display: none">
+			<input type="text" id="message" class="message-input-field" placeholder="Type your message here..." />
+
+			<button id="send-button" class="send-button">
+				<img src="/images/arrow-up.svg" alt="send" />
+			</button>
+		</div>
+
+		<script src="/client.js"></script>
+		<script src="/preloadimg.js"></script>
+        <script src="/encrypt.js"></script>
+        <script src="ws.js"></script>
+	</body>
+</html>
