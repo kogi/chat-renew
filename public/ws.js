@@ -2,6 +2,8 @@ let pingIndex = 0;
 let pongIndex = 0;
 let serverpongIndex = 0;
 
+let reconnectKey = ""
+
 function pingpong(d){
     if(d){
         socket.send(
@@ -53,8 +55,12 @@ function open() {
     socket = new WebSocket(wsURL);
     socket.onopen = () => {
         console.log("connected");
-        generateKeyPair().then((r) => (msgBox.innerHTML = "Key pair generated"));
+        generateKeyPair().then(() => (msgBox.innerHTML = "Key pair generated"));
     };
+    messageHandler(socket);
+}
+
+function messageHandler(socket){
 
     socket.onmessage = async (msg) => {
         console.log(JSON.parse(msg.data));
@@ -64,6 +70,7 @@ function open() {
         if (mode === "cid") {
             // set cid
             cid = data.cid;
+            reconnectKey = data.rKey
             document.getElementById("cid").innerHTML = cid;
             // document.getElementById("status1").src = preloadedImages["online"];
             connectBtn.disabled = false;
@@ -178,6 +185,14 @@ function open() {
             }
         }else if(mode === "server-pong"){
             serverpongIndex = data.index;
+        }else if(mode === "reconnect"){
+            if(data.content === "success"){
+                console.log("reconnected")
+                cid = data.rCid;
+                document.getElementById("cid").innerHTML = cid;
+                msgBox.innerHTML = "connected";
+                msgBox.style.color = "";
+            }
         }
         else if (mode === "error") {
             msgBox.innerHTML = "Error: " + data.message;
@@ -199,8 +214,21 @@ function open() {
         } else {
             msgBox.innerHTML = "Disconnected";
             msgBox.style.color = "red";
+            reconnect(cid);
         }
+        return true
     };
+}
+
+function reconnect(cid){
+    console.log("reconnecting");
+    socket.close();
+    socket = new WebSocket(wsURL);
+    socket.onopen = () => {
+        console.log("reconnecting");
+        socket.send(JSON.stringify({mode: "reconnect", receiver: "", target: "server", data: {rCid: cid ,rKey: reconnectKey}}))
+    }
+    messageHandler(socket);
 }
 
 // check client status

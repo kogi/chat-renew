@@ -3,6 +3,7 @@
 
 @import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap');
 
+@import url('https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@300&display=swap');
 
 body {
 	font-family: "Montserrat", sans-serif;
@@ -251,15 +252,19 @@ body {
 
 .message > p,
 .t-message > p {
-	font-family: "Kalam", serif;
-	font-weight: 400;
+	font-family: "M PLUS Rounded 1c", sans-serif;
+	font-weight: 300;
 	font-style: normal;
+
 	font-size: 2vmax;
 	color: #ffffff;
 	margin: 0 3vw;
 	padding: 5px 10px;
 	border-radius: 10px;
 	max-width: 40svw;
+	overflow-wrap: anywhere; /* スペースがなくても折り返す（最強） */
+	word-break: break-word;  /* 古いブラウザ向けの保険 */
+	white-space: pre-wrap;
 }
 
 .message > p {

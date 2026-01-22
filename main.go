@@ -33,8 +33,8 @@ func sendMessage(ws *websocket.Conn, mode string, sender string, content map[str
 
 type Message struct {
 	Mode     string            `json:"mode"`
-	Target   string            `json:"target"`
-	Receiver string            `json:"receiver,omitempty"`
+	Target   string            `json:"target"`             //送信先のタイプ
+	Receiver string            `json:"receiver,omitempty"` //送信先
 	Data     map[string]string `json:"data,omitempty"`
 }
 
@@ -148,14 +148,14 @@ func main() {
 
 		defer func(ws *websocket.Conn) {
 			err := ws.Close()
-			clientList.remove(clientId)
+			//clientList.remove(clientId)
 			if err != nil {
 				log.Fatal(err)
 			}
 		}(ws)
 
 		// send clientId to client
-		sendMessage(ws, "cid", "server", map[string]string{"cid": clientId, "key": clientKey})
+		sendMessage(ws, "cid", "server", map[string]string{"cid": clientId, "rKey": clientKey})
 		for {
 			_, msg, err := ws.ReadMessage()
 			if err != nil {
@@ -172,6 +172,22 @@ func main() {
 			if message.Target == "server" {
 				if message.Mode == "server-ping" {
 					sendMessage(ws, "server-pong", "server", map[string]string{"index": fmt.Sprintf("%v", message.Data["index"])})
+				} else if message.Mode == "reconnect" {
+					fmt.Println(message.Data["rCid"])
+					if _, has := clientList.clients[message.Data["rCid"]]; has {
+						fmt.Println("reconnect")
+						if clientList.clientKeys[message.Data["rCid"]] == message.Data["rKey"] {
+							clientList.clients[message.Data["rCid"]] = ws
+							clientList.remove(clientId)
+							clientId = message.Data["rCid"]
+							clientKey = clientList.clientKeys[clientId]
+							sendMessage(ws, "reconnect", "server", map[string]string{"content": "success", "rCid": clientId})
+						} else {
+							sendMessage(ws, "reconnect", "server", map[string]string{"content": "failed"})
+						}
+					} else {
+						sendMessage(ws, "reconnect", "server", map[string]string{"content": "failed"})
+					}
 				}
 			} else if message.Target == "client" {
 				if message.Receiver == "" {
