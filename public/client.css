@@ -10,13 +10,19 @@ body {
 	font-optical-sizing: auto;
 	font-weight: 500;
 	font-style: normal;
-	background-color: rgb(32, 32, 32);
+
+	background-color: rgb(23, 23, 23);
 	color: rgb(245, 245, 245);
 	display: flex;
 	align-items: center;
 	justify-content: center;
 	user-select: none;
 	margin: 0;
+}
+
+.icon{
+	width: auto;
+	height: 100%;
 }
 
 /* loading page */
@@ -96,13 +102,13 @@ body {
 .connect-button {
 	background-color: #ffffff;
 	border-radius: 100px;
-	box-shadow: rgba(173, 187, 44, 0.2) 0 -25px 18px -14px inset, rgba(173, 187, 44, 0.15) 0 1px 2px, rgba(173, 187, 44, 0.15) 0 2px 4px, rgba(173, 187, 44, 0.15) 0 4px 8px, rgba(173, 187, 44, 0.15) 0 8px 16px, rgba(173, 187, 44, 0.15) 0 16px 32px;
+	box-shadow: rgba(173, 187, 44, 0.2) 0 -25px 18px -14px inset, rgba(173, 187, 44, 0.15) 0 0 2px, rgba(173, 187, 44, 0.15) 0 0 4px, rgba(173, 187, 44, 0.15) 0 0 8px, rgba(173, 187, 44, 0.15) 0 0 16px, rgba(173, 187, 44, 0.15) 0 0 32px;
 	color: #4c4c4c;
 	cursor: pointer;
 	display: inline-block;
-	font-family: "Delius", serif;
-	font-weight: 400;
-	font-style: normal;
+
+
+
 	padding: 5px 15px;
 	text-align: center;
 	text-decoration: none;
@@ -121,7 +127,7 @@ body {
 }
 
 .connect-button:hover {
-	box-shadow: rgba(44, 187, 132, 0.35) 0 -25px 18px -14px inset, rgba(44, 187, 132, 0.25) 0 1px 2px, rgba(44, 187, 132, 0.25) 0 2px 4px, rgba(44, 187, 132, 0.25) 0 4px 8px, rgba(44, 187, 132, 0.25) 0 8px 16px, rgba(44, 187, 132, 0.25) 0 16px 32px;
+	box-shadow: rgba(44, 187, 132, 0.35) 0 -25px 18px -14px inset, rgba(44, 187, 132, 0.25) 0 0 2px, rgba(44, 187, 132, 0.25) 0 0 4px, rgba(44, 187, 132, 0.25) 0 0 8px, rgba(44, 187, 132, 0.25) 0 0 16px, rgba(44, 187, 132, 0.25) 0 0 32px;
 	transform: scale(1.05);
 }
 
@@ -221,7 +227,7 @@ body {
 	height: 100%;
 	width: 100%;
 	overflow-y: auto;
-	background-color: rgb(61, 61, 61);
+	background-color: rgb(23, 23, 23);
 	padding: 10vh 0 10rem 0;
 	box-sizing: border-box;
 }

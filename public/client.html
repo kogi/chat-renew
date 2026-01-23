@@ -11,13 +11,15 @@
 		</div>
 
 		<div id="pairing" class="pairing" style="display: none">
-			<p class="cid">ID:　<span id="cid"></span></p>
+			<p class="cid">ID :　<span id="cid"></span></p>
 			<div id="client" class="client">
-				<label for="rec-input" class="id-label">ClientList ID　:　</label>
+				<label for="rec-input" class="id-label">Client ID　:　</label>
 				<input type="text" id="rec-input" class="id-Input" disabled />
 			</div>
 			<div>
-				<button class="connect-button" role="button" id="connect" onclick="connect()" disabled>connect</button>
+				<button class="connect-button" role="button" id="connect" onclick="connect()" disabled>
+					<img src="https://file2.coloreen.com/chat/connect.svg" alt="connect to client" class="icon">
+				</button>
 			</div>
 			<p id="msg-box">connecting...</p>
 		</div>

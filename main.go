@@ -8,6 +8,7 @@ import (
 	"os"
 	"strings"
 	"sync"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
@@ -19,6 +20,8 @@ var clientIdLen int = 4
 var maxClients int = 100
 var clientsMu sync.RWMutex
 
+var serverTimer int = 0
+
 func sendMessage(ws *websocket.Conn, mode string, sender string, content map[string]string) {
 	message, err := json.Marshal(map[string]interface{}{"mode": mode, "sender": sender, "data": content})
 	if err != nil {
@@ -27,7 +30,7 @@ func sendMessage(ws *websocket.Conn, mode string, sender string, content map[str
 
 	err = ws.WriteMessage(websocket.TextMessage, message)
 	if err != nil {
-		log.Fatal("Error writing message:", content)
+		log.Println("Error writing message:", content)
 	}
 }
 
@@ -79,6 +82,8 @@ func (c *ClientList) create(ws *websocket.Conn) (string, string) {
 
 	c.clients[clientId] = ws
 
+	c.clientActive[clientId] = serverTimer
+
 	return clientId, c.clientKeys[clientId]
 }
 
@@ -118,6 +123,29 @@ func main() {
 	}
 
 	clientList := load()
+
+	go func() {
+		for {
+			serverTimer++
+			if serverTimer > 1024 {
+				serverTimer = 0
+			}
+
+			for clientId, active := range clientList.clientActive {
+				log.Println(clientId, active)
+				if serverTimer-active > 60 {
+					err := clientList.clients[clientId].Close()
+					if err != nil {
+						log.Println("Error closing client connection:", err)
+					}
+					clientList.remove(clientId)
+				} else if serverTimer-active < 0 {
+					clientList.clientActive[clientId] = 0
+				}
+			}
+			time.Sleep(time.Second)
+		}
+	}()
 
 	router := gin.Default()
 
@@ -171,6 +199,7 @@ func main() {
 
 			if message.Target == "server" {
 				if message.Mode == "server-ping" {
+					clientList.clientActive[clientId] = serverTimer
 					sendMessage(ws, "server-pong", "server", map[string]string{"index": fmt.Sprintf("%v", message.Data["index"])})
 				} else if message.Mode == "reconnect" {
 					fmt.Println(message.Data["rCid"])
@@ -181,12 +210,12 @@ func main() {
 							clientList.remove(clientId)
 							clientId = message.Data["rCid"]
 							clientKey = clientList.clientKeys[clientId]
-							sendMessage(ws, "reconnect", "server", map[string]string{"content": "success", "rCid": clientId})
+							sendMessage(ws, "reconnect", "server", map[string]string{"content": "success", "rCid": clientId, "rKey": clientKey})
 						} else {
-							sendMessage(ws, "reconnect", "server", map[string]string{"content": "failed"})
+							sendMessage(ws, "reconnect", "server", map[string]string{"content": "failed", "reason": "invalid key"})
 						}
 					} else {
-						sendMessage(ws, "reconnect", "server", map[string]string{"content": "failed"})
+						sendMessage(ws, "reconnect", "server", map[string]string{"content": "failed", "reason": "client not found"})
 					}
 				}
 			} else if message.Target == "client" {

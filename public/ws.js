@@ -1,6 +1,9 @@
 let pingIndex = 0;
 let pongIndex = 0;
-let serverpongIndex = 0;
+let serverPongIndex = 0;
+
+let peddingMsg = "";
+let receiver = ""
 
 let reconnectKey = ""
 
@@ -16,12 +19,14 @@ function pingpong(d){
         );
     }else {
         pingIndex++;
-        socket.send(JSON.stringify({
-            mode: "ping",
-            receiver: receiver,
-            target: "client",
-            data: {index: String(pingIndex)}
-        }))
+        if(receiver){
+            socket.send(JSON.stringify({
+                mode: "ping",
+                receiver: receiver,
+                target: "client",
+                data: {index: String(pingIndex)}
+            }))
+        }
         socket.send(JSON.stringify({
             mode: "server-ping",
             receiver: "server",
@@ -34,21 +39,24 @@ function pingpong(d){
 // start when connected to a client
 function sendPing (){
     setInterval(() => {
+        if(receiver){
         if(pingIndex - pongIndex >= 3){
             changeStatus(1, 0);
             console.log("Target client connection lost");
         }else{
             changeStatus(1, 1);
         }
-        if(pingIndex - serverpongIndex >= 3){
+        if(pingIndex - serverPongIndex >= 3){
             changeStatus(0, 0);
             console.log("Server connection lost");
         }else {
             changeStatus(0, 1);
-        }
+        }}
         pingpong();
     }, 3000);
 }
+
+sendPing()
 
 function open() {
     //websocket event listeners
@@ -96,7 +104,7 @@ function messageHandler(socket){
             clientStatus = "online";
             setTimeout(() => {
                 changePage("chat");
-                sendPing();
+                // sendPing();
             }, 1000);
             // checkClientStatus();
         } else if (mode === "key") {
@@ -117,7 +125,7 @@ function messageHandler(socket){
             msgBox.innerHTML = "Connected !";
             changePage("chat");
             clientStatus = "online";
-            sendPing();
+            // sendPing();
         } else if (mode === "hash-check") {
             const hash = data.content;
             console.log(hash);
@@ -184,12 +192,16 @@ function messageHandler(socket){
                 pongIndex = data.index;
             }
         }else if(mode === "server-pong"){
-            serverpongIndex = data.index;
+            serverPongIndex = data.index;
         }else if(mode === "reconnect"){
             if(data.content === "success"){
                 console.log("reconnected")
                 cid = data.rCid;
+                reconnectKey = data.rKey
                 document.getElementById("cid").innerHTML = cid;
+                msgBox.innerHTML = "reconnected";
+                msgBox.style.color = "";
+            }else{
                 msgBox.innerHTML = "connected";
                 msgBox.style.color = "";
             }
@@ -225,7 +237,7 @@ function reconnect(cid){
     socket.close();
     socket = new WebSocket(wsURL);
     socket.onopen = () => {
-        console.log("reconnecting");
+        console.log(cid);
         socket.send(JSON.stringify({mode: "reconnect", receiver: "", target: "server", data: {rCid: cid ,rKey: reconnectKey}}))
     }
     messageHandler(socket);
