@@ -33,7 +33,7 @@ function connect() {
 		);
 		msgBox.innerHTML = "Connecting to ID: " + recInput.value;
 		connectBtn.disabled = true;
-		connectBtn.innerHTML = "connecting...";
+		// connectBtn.innerHTML = "connecting...";
 		recInput.disabled = true;
 	} else {
 		alert("WebSocket is not open. Please reload the page.");

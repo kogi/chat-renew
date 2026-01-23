@@ -149,6 +149,11 @@ func main() {
 
 	router := gin.Default()
 
+	err := router.SetTrustedProxies([]string{"127.0.0.1"})
+	if err != nil {
+		log.Fatalln("Error setting trusted proxies:", err)
+	}
+
 	router.GET("/:file", func(c *gin.Context) {
 		print(c.Param("file") + "\n")
 		path := c.Param("file")
@@ -235,7 +240,7 @@ func main() {
 					for clientId := range clientList.clients {
 						println("clientId: " + clientId)
 					}
-					sendMessage(ws, "error", "server", map[string]string{"message": "ClientList not found", "code": "c0001"})
+					sendMessage(ws, "error", "server", map[string]string{"message": "Client not found", "code": "c0001"})
 				}
 			}
 		}
@@ -247,7 +252,7 @@ func main() {
 
 	fmt.Println("listening http://127.0.0.1:9080")
 
-	err := router.Run(":9080")
+	err = router.Run(":9080")
 	if err != nil {
 		return
 	}

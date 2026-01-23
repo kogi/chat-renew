@@ -211,7 +211,8 @@ function messageHandler(socket){
             msgBox.style.color = "red";
             if (data.code === "c0001") {
                 connectBtn.disabled = false;
-                connectBtn.innerHTML = "connect";
+                // connectBtn.innerHTML = "connect";
+                recInput.disabled = false;
             }
         } else {
             console.log(JSON.parse(msg.data));
