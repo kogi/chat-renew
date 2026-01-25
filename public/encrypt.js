@@ -57,11 +57,11 @@ async function encryptAES(data, key) {
     combined.set(iv, 0);
     combined.set(new Uint8Array(encryptedBuffer), iv.length);
 
-    return ab2b64(combined.buffer);
+    return combined;
 }
 
 async function decryptAES(data, key) {
-    const encryptedData = b642ab(data);
+    const encryptedData = data;
     const iv = encryptedData.slice(0, 12);
     const encryptedMessage = encryptedData.slice(12, encryptedData.length);
     const decryptedMessage = await crypto.subtle.decrypt({ name: "AES-GCM", iv: iv }, key, encryptedMessage);
@@ -94,18 +94,35 @@ async function encryptText (data, chunkSize) {
     let encryptedMessage = "";
     let currentPos = 0;
     let uuid = self.crypto.randomUUID();
-    let password = uuid.replace("-", "");
-    while (data.length > currentPos) {
+
+    let password = uuid.replaceAll("-", "");
+    const encoder = new TextEncoder();
+    const keyData = encoder.encode(password);
+    const cryptoKey = await crypto.subtle.importKey(
+        "raw",
+        keyData,
+        { name: "AES-GCM" },
+        false,
+        ["encrypt"]
+    );
+
+    while (data.length >= currentPos) {
         const end = Math.min(data.length, currentPos + chunkSize);
-        const chunk = data.substring(currentPos, end);
-        encryptAES(chunk, password).then((encryptedChunk) => {
-            encryptedMessage+="|" + ab2b64(encryptedChunk);
-        })
-            .catch((error) => {
-                console.error(error);
-            })
+        const chunk = encoder.encode(data.substring(currentPos, end));
+        try {
+            const encryptedChunk = await encryptAES(chunk, cryptoKey);
+            console.log(ab2b64(encryptedChunk))
+            encryptedMessage += "|" + ab2b64(encryptedChunk);
+        } catch (error) {
+            console.error("AES Encryption failed:", error);
+            throw error;
+        }
+
         currentPos += chunkSize;
+        console.log("1")
     }
+
+    console.log("2");
 
     let encryptedPassword = await encryptRSA(password, yourPublicKey);
     encryptedMessage = ab2b64(encryptedPassword) + encryptedMessage;
@@ -114,12 +131,27 @@ async function encryptText (data, chunkSize) {
 }
 
 async function decryptText (data) {
+    console.log(data)
     let decryptedMessage = "";
-    let encryptedPassword = b642ab(data.substring(0, data.indexOf("|")));
+    let encryptedPassword = b642ab(data.split("|")[0]);
     let decryptedPassword = await decryptRSA(encryptedPassword, privateKey);
+
+    const encoder = new TextEncoder();
+    const keyData = encoder.encode(decryptedPassword);
+    const cryptoKey = await crypto.subtle.importKey(
+        "raw",
+        keyData,
+        { name: "AES-GCM" },
+        false,
+        ["decrypt"]
+    );
+
     let chunks = data.split("|");
+    console.log(chunks.length)
     for (let i = 1; i < chunks.length; i++) {
-        decryptedMessage += await decryptAES(b642ab(chunks[i]), decryptedPassword);
+        console.log("loop")
+        const decoder = new TextDecoder();
+        decryptedMessage += decoder.decode(await decryptAES(b642ab(chunks[i]), cryptoKey))
     }
     return decryptedMessage
 }

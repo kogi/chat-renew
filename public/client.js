@@ -89,18 +89,10 @@ function showInfo(color, message) {
 
 async function sendMsg(t) {
 
-	ctt = t.replace(/\r?\n/g, "<br>");
-	const chunkSize = 50;
-	let encryptedMessage = "";
-	for (let i = 0; i < ctt.length; i += chunkSize) {
-		const chunk = ctt.substring(i, i + chunkSize);
-		console.log(chunk)
-		const encryptedChunk = await encryptRSA(chunk, yourPublicKey);
-        console.log(ab2b64(encryptedChunk))
-		encryptedMessage+="|"+ab2b64(encryptedChunk);
-	}
+	let encryptedMessage = await encryptText(t.replace(/\r?\n/g, "<br>"), 500);
 
-	msgHash = await sha256(ctt);
+
+	msgHash = await sha256(t.replace(/\r?\n/g, "<br>"));
 
 	// console.log(ab2b64(encryptedMessage).length)
     console.log("Sending encrypted message:", encryptedMessage);
@@ -112,7 +104,7 @@ async function sendMsg(t) {
 			data: { content: encryptedMessage },
 		})
 	);
-	peddingMsg = ctt;
+	pendingMsg = t.replace(/\r?\n/g, "<br>");
 }
 
 const sendBtn = document.getElementById("send-button");

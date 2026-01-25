@@ -132,7 +132,7 @@ func main() {
 			}
 
 			for clientId, active := range clientList.clientActive {
-				log.Println(clientId, active)
+				//log.Println(clientId, active)
 				if serverTimer-active > 60 {
 					err := clientList.clients[clientId].Close()
 					if err != nil {
@@ -196,7 +196,7 @@ func main() {
 			}
 			//println(string(msg))
 			var message Message
-			fmt.Println(fmt.Sprintf("%v", message))
+			//fmt.Println(fmt.Sprintf("%v", message))
 			if err := json.Unmarshal(msg, &message); err != nil {
 				log.Println("Error unmarshalling data:", err)
 				break
@@ -207,9 +207,9 @@ func main() {
 					clientList.clientActive[clientId] = serverTimer
 					sendMessage(ws, "server-pong", "server", map[string]string{"index": fmt.Sprintf("%v", message.Data["index"])})
 				} else if message.Mode == "reconnect" {
-					fmt.Println(message.Data["rCid"])
+					//fmt.Println(message.Data["rCid"])
 					if _, has := clientList.clients[message.Data["rCid"]]; has {
-						fmt.Println("reconnect")
+						//fmt.Println("reconnect")
 						if clientList.clientKeys[message.Data["rCid"]] == message.Data["rKey"] {
 							clientList.clients[message.Data["rCid"]] = ws
 							clientList.remove(clientId)

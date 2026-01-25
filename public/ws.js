@@ -2,7 +2,9 @@ let pingIndex = 0;
 let pongIndex = 0;
 let serverPongIndex = 0;
 
-let peddingMsg = "";
+let pendingMsg = "";
+let rePendingMsg = "";
+let msgHash = "";
 let receiver = ""
 
 let reconnectKey = ""
@@ -68,6 +70,10 @@ function open() {
     messageHandler(socket);
 }
 
+function showError(e) {
+    console.log(e);
+}
+
 function messageHandler(socket){
 
     socket.onmessage = async (msg) => {
@@ -128,8 +134,8 @@ function messageHandler(socket){
             // sendPing();
         } else if (mode === "hash-check") {
             const hash = data.content;
-            console.log(hash);
             console.log(msgHash);
+            console.log(hash);
             socket.send(
                 JSON.stringify({
                     mode: "hash-result",
@@ -139,10 +145,10 @@ function messageHandler(socket){
                 })
             );
             if (hash === msgHash) {
-                pushMsg("0", peddingMsg);
+                pushMsg("0", pendingMsg);
                 document.getElementById("message").value = "";
                 status = "free";
-                peddingMsg = "";
+                pendingMsg = "";
                 //chat-boxを一番下にスクロール
                 const chatBox = document.getElementById("message-box");
                 chatBox.scrollTo({
@@ -155,29 +161,22 @@ function messageHandler(socket){
             }
         } else if (mode === "hash-result") {
             if (data.content === "true") {
-                console.log("Decrypted Message:", receivedMsg);
-
-                pushMsg("1", receivedMsg);
+                pushMsg("1", rePendingMsg);
             } else {
                 console.log("hash didn't match", data.content);
             }
         } else if (mode === "message") {
-            let decryptedMessage = "";
-            let content = data.content.split("|");
-            content.shift();
-            console.log(content)
-            for (let i = 0; i < content.length; i++) {
-                decryptedMessage += await decryptRSA(b642ab(content[i]), privateKey);
-            }
-            const hash = await sha256(decryptedMessage);
-            receivedMsg = decryptedMessage;
-            setTimeout(() => {
+            console.log(data.content);
+            console.log("message");
+            rePendingMsg = await decryptText(data.content);
+            console.log(rePendingMsg);
+            setTimeout(async () => {
                 socket.send(
                     JSON.stringify({
                         mode: "hash-check",
                         receiver: sender,
                         target: "client",
-                        data: { content: hash },
+                        data: { content: await sha256(rePendingMsg) },
                     })
                 );
             }, 500);
