@@ -94,6 +94,7 @@ async function sendMsg(t) {
 	let encryptedMessage = "";
 	for (let i = 0; i < ctt.length; i += chunkSize) {
 		const chunk = ctt.substring(i, i + chunkSize);
+		console.log(chunk)
 		const encryptedChunk = await encryptRSA(chunk, publicKey);
         console.log(ab2b64(encryptedChunk))
 		encryptedMessage+="|"+ab2b64(encryptedChunk);
@@ -116,6 +117,9 @@ async function sendMsg(t) {
 
 const sendBtn = document.getElementById("send-button");
 sendBtn.addEventListener("click", () => {
+	if(document.getElementById("message").value.trim() === "") {
+		return;
+	}
 	sendMsg(document.getElementById("message").value);
 });
 
