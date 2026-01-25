@@ -89,7 +89,7 @@ function messageHandler(socket){
             }
         } else if (mode === "getKey") {
             //相手が自分の公開鍵を要求してきたとき=connect成立
-            publicKey = b642ab(data.key);
+            yourPublicKey = b642ab(data.key);
             socket.send(
                 JSON.stringify({
                     mode: "key",
@@ -119,7 +119,7 @@ function messageHandler(socket){
                 showInfo("#136ac1", "Public key received");
             }
             console.log(data.key);
-            publicKey = b642ab(data.key);
+            yourPublicKey = b642ab(data.key);
             receiver = sender;
             document.getElementById("target-status-id").innerHTML = sender;
             msgBox.innerHTML = "Connected !";

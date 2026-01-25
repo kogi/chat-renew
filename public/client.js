@@ -95,7 +95,7 @@ async function sendMsg(t) {
 	for (let i = 0; i < ctt.length; i += chunkSize) {
 		const chunk = ctt.substring(i, i + chunkSize);
 		console.log(chunk)
-		const encryptedChunk = await encryptRSA(chunk, publicKey);
+		const encryptedChunk = await encryptRSA(chunk, yourPublicKey);
         console.log(ab2b64(encryptedChunk))
 		encryptedMessage+="|"+ab2b64(encryptedChunk);
 	}

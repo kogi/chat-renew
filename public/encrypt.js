@@ -50,8 +50,30 @@ async function decryptRSA(data, privateKey) {
     return decoder.decode(decryptedData);
 }
 
+async function encryptAES(data, key) {
+    const iv = crypto.getRandomValues(new Uint8Array(12));
+    const encryptedBuffer = await crypto.subtle.encrypt({ name: "AES-GCM", iv: iv }, key, data);
+    const combined = new Uint8Array(iv.length + encryptedBuffer.byteLength);
+    combined.set(iv, 0);
+    combined.set(new Uint8Array(encryptedBuffer), iv.length);
+
+    return ab2b64(combined.buffer);
+}
+
+async function decryptAES(data, key) {
+    const encryptedData = b642ab(data);
+    const iv = encryptedData.slice(0, 12);
+    const encryptedMessage = encryptedData.slice(12, encryptedData.length);
+    const decryptedMessage = await crypto.subtle.decrypt({ name: "AES-GCM", iv: iv }, key, encryptedMessage);
+    console.log(
+        "decrypted message:",decryptedMessage
+    )
+    return decryptedMessage;
+}
+
 async function generateKeyPair() {
     if (!window.crypto || !window.crypto.subtle) {
+        msgBox.innerHTML = "crypto.subtle not supported.";
         throw new Error("crypto.subtle not supported.");
     }
     const keyPair = await crypto.subtle.generateKey(
@@ -66,4 +88,38 @@ async function generateKeyPair() {
     );
     myPublicKey = await crypto.subtle.exportKey("spki", keyPair.publicKey);
     privateKey = await crypto.subtle.exportKey("pkcs8", keyPair.privateKey);
+}
+
+async function encryptText (data, chunkSize) {
+    let encryptedMessage = "";
+    let currentPos = 0;
+    let uuid = self.crypto.randomUUID();
+    let password = uuid.replace("-", "");
+    while (data.length > currentPos) {
+        const end = Math.min(data.length, currentPos + chunkSize);
+        const chunk = data.substring(currentPos, end);
+        encryptAES(chunk, password).then((encryptedChunk) => {
+            encryptedMessage+="|" + ab2b64(encryptedChunk);
+        })
+            .catch((error) => {
+                console.error(error);
+            })
+        currentPos += chunkSize;
+    }
+
+    let encryptedPassword = await encryptRSA(password, yourPublicKey);
+    encryptedMessage = ab2b64(encryptedPassword) + encryptedMessage;
+
+    return encryptedMessage
+}
+
+async function decryptText (data) {
+    let decryptedMessage = "";
+    let encryptedPassword = b642ab(data.substring(0, data.indexOf("|")));
+    let decryptedPassword = await decryptRSA(encryptedPassword, privateKey);
+    let chunks = data.split("|");
+    for (let i = 1; i < chunks.length; i++) {
+        decryptedMessage += await decryptAES(b642ab(chunks[i]), decryptedPassword);
+    }
+    return decryptedMessage
 }
