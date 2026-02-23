@@ -7,8 +7,15 @@ const connectBtn = document.getElementById("connect");
 let myPublicKey = "";
 let yourPublicKey = "";
 let privateKey = "";
-let wsURL = "wss://" + location.host + "/ws";
-let socket ;
+
+let wsURL ;
+if(location.protocol === "https:"){
+    wsURL = "wss://" + location.host + "/ws";
+}else{
+	wsURL = "ws://" + location.host + "/ws";
+}
+
+let socket;
 let cid = "";
 
 const recInput = document.getElementById("rec-input");

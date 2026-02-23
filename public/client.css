@@ -276,14 +276,16 @@ body {
 	overflow-wrap: anywhere; /* スペースがなくても折り返す（最強） */
 	word-break: break-word;  /* 古いブラウザ向けの保険 */
 	white-space: pre-wrap;
+
+	user-select: text;
 }
 
 .message > p {
-	background-color: rgb(142, 201, 97);
+	background-color: rgb(74, 144, 226);
 }
 
 .t-message > p {
-	background-color: rgb(146, 99, 166);
+	background-color: rgb(58, 58, 58);
 }
 
 .message-input {
@@ -326,12 +328,34 @@ body {
 .send-button {
 	height: 100%;
 	aspect-ratio: 1;
-	border: 0;
-	border-radius: 100px;
-	outline: none;
-	background-color: rgba(243, 255, 209, 0.5);
-	cursor: pointer;
 	backdrop-filter: blur(10px);
+	margin: 0 10px 0 10px;
+
+	background-color: #ffffff;
+	border-radius: 100px;
+	box-shadow: rgba(173, 187, 44, 0.2) 0 -25px 18px -14px inset, rgba(173, 187, 44, 0.15) 0 0 2px, rgba(173, 187, 44, 0.15) 0 0 4px, rgba(173, 187, 44, 0.15) 0 0 8px, rgba(173, 187, 44, 0.15) 0 0 16px, rgba(173, 187, 44, 0.15) 0 0 32px;
+	color: #4c4c4c;
+	cursor: pointer;
+	display: inline-block;
+
+	padding: 5px 15px;
+	text-align: center;
+	text-decoration: none;
+	transition: all 250ms;
+	border: 0;
+	font-size: 20px;
+	user-select: none;
+	-webkit-user-select: none;
+	touch-action: manipulation;
+}
+
+.send-button:hover {
+	box-shadow: rgba(44, 187, 132, 0.35) 0 -25px 18px -14px inset, rgba(44, 187, 132, 0.25) 0 0 2px, rgba(44, 187, 132, 0.25) 0 0 4px, rgba(44, 187, 132, 0.25) 0 0 8px, rgba(44, 187, 132, 0.25) 0 0 16px, rgba(44, 187, 132, 0.25) 0 0 32px;
+	transform: scale(1.05);
+}
+
+.send-button:disabled {
+	cursor: not-allowed;
 }
 
 .send-button img {

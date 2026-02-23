@@ -95,6 +95,9 @@ function messageHandler(socket){
             }
         } else if (mode === "getKey") {
             //相手が自分の公開鍵を要求してきたとき=connect成立
+            if(receiver !== ""){
+                return;
+            }
             yourPublicKey = b642ab(data.key);
             socket.send(
                 JSON.stringify({
@@ -179,7 +182,7 @@ function messageHandler(socket){
                         data: { content: await sha256(rePendingMsg) },
                     })
                 );
-            }, 500);
+            }, 200);
         } else if (mode === "ping") {
             pingpong(data.index)
         } else if (mode === "pong") {
