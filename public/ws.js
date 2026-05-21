@@ -10,7 +10,7 @@ let receiver = ""
 let reconnectKey = ""
 
 function pingpong(d){
-    if(d){
+    if(d){// pong
         socket.send(
             JSON.stringify({
                 mode: "pong",
@@ -19,7 +19,7 @@ function pingpong(d){
                 data: { index: d.toString()},
             })
         );
-    }else {
+    }else {// ping
         pingIndex++;
         if(receiver){
             socket.send(JSON.stringify({
@@ -42,6 +42,9 @@ function pingpong(d){
 function sendPing (){
     setInterval(() => {
         if(receiver){
+            console.log(pingIndex)
+            console.log(pongIndex)
+            console.log(pingIndex - pongIndex)
         if(pingIndex - pongIndex >= 3){
             changeStatus(1, 0);
             console.log("Target client connection lost");
@@ -113,9 +116,8 @@ function messageHandler(socket){
             clientStatus = "online";
             setTimeout(() => {
                 changePage("chat");
-                // sendPing();
             }, 1000);
-            // checkClientStatus();
+            pongIndex = pingIndex
         } else if (mode === "key") {
             if (data.key === "") {
                 connectBtn.disabled = false;
@@ -133,8 +135,7 @@ function messageHandler(socket){
             document.getElementById("target-status-id").innerHTML = sender;
             msgBox.innerHTML = "Connected !";
             changePage("chat");
-            clientStatus = "online";
-            // sendPing();
+            pongIndex = pingIndex
         } else if (mode === "hash-check") {
             const hash = data.content;
             console.log(msgHash);
