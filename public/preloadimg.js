@@ -1,4 +1,4 @@
-const preloadedImages = ["arrow-up.svg", "error.svg", "success.svg"];
+const preloadedImages = ["send.svg", "error.svg", "success.svg"];
 let imgblobs = {};
 
 async function preload(index) {
